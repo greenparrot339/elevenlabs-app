@@ -1,11 +1,13 @@
 export default async function handler(req, res) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
 
-  const { text, voiceId } = req.body; // ✅ Must match frontend
+  const { text, voiceId } = req.body;
 
-  const selectedVoiceId = voiceId || "EXAVITQu4vr4xnSDxMaL"; // fallback voice
+  if (!voiceId) {
+    return res.status(400).json({ error: "voiceId is missing in request body" });
+  }
 
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`, {
+  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`, {
     method: 'POST',
     headers: {
       'Accept': 'audio/mpeg',
@@ -28,7 +30,6 @@ export default async function handler(req, res) {
   }
 
   const audioBuffer = await response.arrayBuffer();
-
   res.setHeader("Content-Type", "audio/mpeg");
   res.send(Buffer.from(audioBuffer));
 }
