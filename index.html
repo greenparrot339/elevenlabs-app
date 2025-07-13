@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text to Speech</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="container">
+    <h1>Text to Speech (ElevenLabs)</h1>
+
+    <textarea id="text" placeholder="Enter text to convert..." rows="5"></textarea>
+    <input type="text" id="filename" placeholder="Filename (e.g., output.mp3)" />
+
+    <button onclick="generateSpeech()">Generate Audio</button>
+
+    <audio id="audioPlayer" controls></audio>
+
+    <p id="errorMsg"></p>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
