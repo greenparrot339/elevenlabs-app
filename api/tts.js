@@ -1,9 +1,9 @@
 export default async function handler(req, res) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
 
-  const { text, voiceId } = req.body; // ✅ Fix this line
+  const { text, voiceId } = req.body; // ✅ Must match frontend
 
-  const selectedVoiceId = voiceId || "EXAVITQu4vr4xnSDxMaL"; // fallback to Rachel
+  const selectedVoiceId = voiceId || "EXAVITQu4vr4xnSDxMaL"; // fallback voice
 
   const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`, {
     method: 'POST',
