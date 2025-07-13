@@ -1,14 +1,14 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
+  const apiKey = process.env.ELEVENLABS_API_KEY;
 
-  const { text, filename } = req.body;
+  const { text, voice_id } = req.body;
 
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${process.env.ELEVENLABS_VOICE_ID}`, {
-    method: "POST",
+  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+    method: 'POST',
     headers: {
-      "Accept": "audio/mpeg",
-      "Content-Type": "application/json",
-      "xi-api-key": process.env.ELEVENLABS_API_KEY,
+      'Accept': 'audio/mpeg',
+      'Content-Type': 'application/json',
+      'xi-api-key': apiKey,
     },
     body: JSON.stringify({
       text,
@@ -22,11 +22,11 @@ export default async function handler(req, res) {
 
   if (!response.ok) {
     const error = await response.text();
-    return res.status(response.status).send(error);
+    return res.status(response.status).json({ error });
   }
 
   const audioBuffer = await response.arrayBuffer();
+
   res.setHeader("Content-Type", "audio/mpeg");
-  res.setHeader("Content-Disposition", `attachment; filename="${filename || 'output.mp3'}"`);
-  res.status(200).send(Buffer.from(audioBuffer));
+  res.send(Buffer.from(audioBuffer));
 }
