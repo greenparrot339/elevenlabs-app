@@ -4,32 +4,613 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Text to Speech</title>
-  <link rel="stylesheet" href="style.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                  radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .miku-dancer {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 80px;
+      height: 120px;
+      z-index: 1;
+      opacity: 0.3;
+      pointer-events: none;
+      animation: mikuDance 2s infinite ease-in-out;
+    }
+
+    .miku-body {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .miku-head {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(145deg, #fdbcb4 0%, #faa2a2 100%);
+      border-radius: 50%;
+      animation: mikuHeadBob 1s infinite ease-in-out;
+    }
+
+    .miku-hair {
+      position: absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 35px;
+      background: linear-gradient(145deg, #39c5bb 0%, #2dd4bf 100%);
+      border-radius: 50% 50% 20% 20%;
+      animation: mikuHairSway 1.5s infinite ease-in-out;
+    }
+
+    .miku-pigtails {
+      position: absolute;
+      top: 5px;
+      width: 15px;
+      height: 30px;
+      background: linear-gradient(145deg, #39c5bb 0%, #2dd4bf 100%);
+      border-radius: 50%;
+      animation: mikuPigtailSway 1.2s infinite ease-in-out;
+    }
+
+    .miku-pigtails.left {
+      left: -5px;
+      animation-delay: -0.6s;
+    }
+
+    .miku-pigtails.right {
+      right: -5px;
+    }
+
+    .miku-body-torso {
+      position: absolute;
+      top: 35px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 35px;
+      height: 45px;
+      background: linear-gradient(145deg, #1e293b 0%, #334155 100%);
+      border-radius: 15px 15px 5px 5px;
+      animation: mikuBodySway 2s infinite ease-in-out;
+    }
+
+    .miku-arms {
+      position: absolute;
+      top: 40px;
+      width: 12px;
+      height: 30px;
+      background: linear-gradient(145deg, #fdbcb4 0%, #faa2a2 100%);
+      border-radius: 15px;
+      animation: mikuArmSwing 1s infinite ease-in-out;
+    }
+
+    .miku-arms.left {
+      left: 15px;
+      animation-delay: -0.5s;
+    }
+
+    .miku-arms.right {
+      right: 15px;
+    }
+
+    .miku-legs {
+      position: absolute;
+      bottom: 0;
+      width: 12px;
+      height: 35px;
+      background: linear-gradient(145deg, #fdbcb4 0%, #faa2a2 100%);
+      border-radius: 8px;
+      animation: mikuLegKick 1s infinite ease-in-out;
+    }
+
+    .miku-legs.left {
+      left: 25px;
+      animation-delay: -0.5s;
+    }
+
+    .miku-legs.right {
+      right: 25px;
+    }
+
+    .miku-skirt {
+      position: absolute;
+      top: 65px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 40px;
+      height: 20px;
+      background: linear-gradient(145deg, #64748b 0%, #475569 100%);
+      border-radius: 50%;
+      animation: mikuSkirtSway 2s infinite ease-in-out;
+    }
+
+    @keyframes mikuDance {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-5px); }
+    }
+
+    @keyframes mikuHeadBob {
+      0%, 100% { transform: translateX(-50%) rotate(-2deg); }
+      50% { transform: translateX(-50%) rotate(2deg); }
+    }
+
+    @keyframes mikuHairSway {
+      0%, 100% { transform: translateX(-50%) rotate(-1deg); }
+      50% { transform: translateX(-50%) rotate(1deg); }
+    }
+
+    @keyframes mikuPigtailSway {
+      0%, 100% { transform: rotate(-5deg); }
+      50% { transform: rotate(5deg); }
+    }
+
+    @keyframes mikuBodySway {
+      0%, 100% { transform: translateX(-50%) rotate(-1deg); }
+      50% { transform: translateX(-50%) rotate(1deg); }
+    }
+
+    @keyframes mikuArmSwing {
+      0%, 100% { transform: rotate(-10deg); }
+      50% { transform: rotate(10deg); }
+    }
+
+    @keyframes mikuLegKick {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+
+    @keyframes mikuSkirtSway {
+      0%, 100% { transform: translateX(-50%) scaleX(1); }
+      50% { transform: translateX(-50%) scaleX(1.1); }
+    }
+
+    /* Twinkling stars */
+    .star {
+      position: fixed;
+      width: 2px;
+      height: 2px;
+      background: white;
+      border-radius: 50%;
+      pointer-events: all;
+      z-index: 1;
+      animation: twinkle 3s infinite ease-in-out, randomMovement 8s infinite linear;
+      transition: transform 0.3s ease-out;
+    }
+
+    .star.medium {
+      width: 3px;
+      height: 3px;
+      animation-duration: 2.5s, 10s;
+    }
+
+    .star.large {
+      width: 4px;
+      height: 4px;
+      animation-duration: 2s, 12s;
+    }
+
+    .star.blue {
+      background: #60a5fa;
+      box-shadow: 0 0 6px #60a5fa;
+    }
+
+    .star.purple {
+      background: #c084fc;
+      box-shadow: 0 0 6px #c084fc;
+    }
+
+    .star.pink {
+      background: #f472b6;
+      box-shadow: 0 0 6px #f472b6;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { 
+        opacity: 0.3;
+        transform: scale(1);
+      }
+      50% { 
+        opacity: 1;
+        transform: scale(1.2);
+      }
+    }
+
+    @keyframes randomMovement {
+      0% { transform: translate(0, 0) rotate(0deg); }
+      25% { transform: translate(20px, -15px) rotate(90deg); }
+      50% { transform: translate(-10px, 25px) rotate(180deg); }
+      75% { transform: translate(15px, 10px) rotate(270deg); }
+      100% { transform: translate(0, 0) rotate(360deg); }
+    }
+
+    .container {
+      background: rgba(30, 41, 59, 0.95);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 40px;
+      border-radius: 24px;
+      width: 100%;
+      max-width: 650px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5),
+                  0 0 0 1px rgba(255, 255, 255, 0.05);
+      position: relative;
+      z-index: 2;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      position: relative;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 2px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 25px;
+    }
+
+    .input-label {
+      display: block;
+      margin-bottom: 8px;
+      color: #e2e8f0;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    textarea, input, select {
+      width: 100%;
+      padding: 16px 20px;
+      border-radius: 16px;
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      background: rgba(15, 23, 42, 0.8);
+      color: #e2e8f0;
+      font-size: 16px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transform: translateY(-2px);
+    }
+
+    textarea::placeholder, input::placeholder {
+      color: #64748b;
+    }
+
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+      background-position: right 16px center;
+      background-repeat: no-repeat;
+      background-size: 16px;
+      padding-right: 50px;
+    }
+
+    select option {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 8px;
+    }
+
+    button {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 16px;
+      font-weight: 600;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 10px;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s ease;
+    }
+
+    button:hover::before {
+      left: 100%;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    .audio-container {
+      margin-top: 30px;
+      padding: 20px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    audio {
+      width: 100%;
+      border-radius: 12px;
+      filter: sepia(20%) saturate(70%) hue-rotate(200deg);
+    }
+
+    audio::-webkit-media-controls-panel {
+      background-color: rgba(30, 41, 59, 0.9);
+    }
+
+    #errorMsg {
+      color: #f87171;
+      margin-top: 15px;
+      text-align: center;
+      font-size: 14px;
+      padding: 12px;
+      background: rgba(248, 113, 113, 0.1);
+      border-radius: 12px;
+      border: 1px solid rgba(248, 113, 113, 0.2);
+      display: none;
+    }
+
+    .feature-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, rgba(102, 126, 234, 0.2) 0%, rgba(118, 75, 162, 0.2) 100%);
+      border: 1px solid rgba(102, 126, 234, 0.3);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: #a5b4fc;
+      margin-left: 10px;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 30px 20px;
+        margin: 10px;
+      }
+      
+      h1 {
+        font-size: 2rem;
+      }
+      
+      textarea, input, select, button {
+        font-size: 16px; /* Prevent zoom on iOS */
+      }
+    }
+
+    /* Floating particles effect */
+    .particle {
+      position: fixed;
+      width: 4px;
+      height: 4px;
+      background: rgba(102, 126, 234, 0.3);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: float 8s infinite linear;
+      z-index: 1;
+    }
+
+    @keyframes float {
+      0% {
+        transform: translateY(100vh) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      90% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Text to Speech (ElevenLabs)</h1>
+  <!-- Twinkling stars -->
+  <div class="star" style="top: 10%; left: 5%; animation-delay: 0s;"></div>
+  <div class="star medium blue" style="top: 15%; left: 85%; animation-delay: 0.5s;"></div>
+  <div class="star large purple" style="top: 25%; left: 70%; animation-delay: 1s;"></div>
+  <div class="star" style="top: 35%; left: 15%; animation-delay: 1.5s;"></div>
+  <div class="star medium pink" style="top: 45%; left: 90%; animation-delay: 2s;"></div>
+  <div class="star large" style="top: 55%; left: 8%; animation-delay: 2.5s;"></div>
+  <div class="star blue" style="top: 65%; left: 75%; animation-delay: 3s;"></div>
+  <div class="star medium" style="top: 75%; left: 25%; animation-delay: 3.5s;"></div>
+  <div class="star purple" style="top: 85%; left: 60%; animation-delay: 4s;"></div>
+  <div class="star large pink" style="top: 20%; left: 40%; animation-delay: 4.5s;"></div>
+  <div class="star" style="top: 30%; left: 95%; animation-delay: 5s;"></div>
+  <div class="star medium blue" style="top: 40%; left: 50%; animation-delay: 5.5s;"></div>
+  <div class="star" style="top: 50%; left: 3%; animation-delay: 6s;"></div>
+  <div class="star large" style="top: 60%; left: 88%; animation-delay: 6.5s;"></div>
+  <div class="star purple" style="top: 70%; left: 35%; animation-delay: 7s;"></div>
+  <div class="star medium pink" style="top: 80%; left: 78%; animation-delay: 7.5s;"></div>
+  <div class="star" style="top: 90%; left: 12%; animation-delay: 8s;"></div>
+  <div class="star blue" style="top: 8%; left: 65%; animation-delay: 8.5s;"></div>
+  <div class="star large" style="top: 18%; left: 20%; animation-delay: 9s;"></div>
+  <div class="star medium" style="top: 28%; left: 82%; animation-delay: 9.5s;"></div>
 
-    <textarea id="text" placeholder="Enter text to convert..." rows="5"></textarea>
-    <input type="text" id="filename" placeholder="Filename (e.g., output.mp3)" />
-
-    <!-- 🎙️ Voice Selector -->
-    <select id="voiceId">
-      <option value="EXAVITQu4vr4xnSDxMaL">Rachel (Default)</option>
-      <option value="21m00Tcm4TlvDq8ikWAM">Domi</option>
-      <option value="yoZ06aMxZJJ28mfd3POQ">Antoni</option>
-      <option value="nPczCjzI2devNBz1zQrb">Brian(best)</option>
-      <!-- Add more voice options as needed -->
-    </select>
-
-    <button onclick="generateSpeech()">Generate Audio</button>
-
-    <audio id="audioPlayer" controls></audio>
-
-    <p id="errorMsg"></p>
+  <!-- Miku dancing animation -->
+  <div class="miku-dancer">
+    <div class="miku-body">
+      <div class="miku-head">
+        <div class="miku-hair">
+          <div class="miku-pigtails left"></div>
+          <div class="miku-pigtails right"></div>
+        </div>
+      </div>
+      <div class="miku-body-torso"></div>
+      <div class="miku-arms left"></div>
+      <div class="miku-arms right"></div>
+      <div class="miku-skirt"></div>
+      <div class="miku-legs left"></div>
+      <div class="miku-legs right"></div>
+    </div>
   </div>
 
+  <!-- Floating particles -->
+  <div class="particle" style="left: 10%; animation-delay: 0s;"></div>
+  <div class="particle" style="left: 20%; animation-delay: 1s;"></div>
+  <div class="particle" style="left: 30%; animation-delay: 2s;"></div>
+  <div class="particle" style="left: 40%; animation-delay: 3s;"></div>
+  <div class="particle" style="left: 50%; animation-delay: 4s;"></div>
+  <div class="particle" style="left: 60%; animation-delay: 5s;"></div>
+  <div class="particle" style="left: 70%; animation-delay: 6s;"></div>
+  <div class="particle" style="left: 80%; animation-delay: 7s;"></div>
+  <div class="particle" style="left: 90%; animation-delay: 8s;"></div>
+
+  <div class="container">
+    <h1>Text to Speech</h1>
+    
+    <div class="input-group">
+      <label class="input-label">Enter Your Text</label>
+      <textarea id="text" placeholder="Type or paste your text here to convert to speech..." rows="5"></textarea>
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Output Filename</label>
+      <input type="text" id="filename" placeholder="e.g., my_audio.mp3" />
+    </div>
+
+    <div class="input-group">
+      <label class="input-label">Voice Selection</label>
+      <select id="voiceId">
+        <option value="EXAVITQu4vr4xnSDxMaL">Rachel (Default)</option>
+        <option value="21m00Tcm4TlvDq8ikWAM">Domi</option>
+        <option value="yoZ06aMxZJJ28mfd3POQ">Antoni</option>
+        <option value="nPczCjzI2devNBz1zQrb">Brian (Best)</option>
+      </select>
+    </div>
+
+    <button onclick="generateSpeech()">🎙️ Generate Audio</button>
+
+    <div class="audio-container">
+      <audio id="audioPlayer" controls></audio>
+    </div>
+
+    <p id="errorMsg"></p>
+    
+    <div style="text-align: center; margin-top: 30px; color: #64748b; font-size: 12px; opacity: 0.7;">
+      nomoshkar bondhugon :D
+      <br>
+      <span class="feature-badge" style="margin-left: 0; margin-top: 5px; display: inline-block;">ElevenLabs</span>
+    </div>
+  </div>
+
+  <script>
+    // Star hover effect
+    document.addEventListener('DOMContentLoaded', function() {
+      const stars = document.querySelectorAll('.star');
+      
+      stars.forEach(star => {
+        star.addEventListener('mouseenter', function(e) {
+          const rect = this.getBoundingClientRect();
+          const centerX = rect.left + rect.width / 2;
+          const centerY = rect.top + rect.height / 2;
+          
+          // Calculate random direction away from cursor
+          const angle = Math.random() * 2 * Math.PI;
+          const distance = 50 + Math.random() * 30; // Random distance 50-80px
+          
+          const moveX = Math.cos(angle) * distance;
+          const moveY = Math.sin(angle) * distance;
+          
+          this.style.transform = `translate(${moveX}px, ${moveY}px) scale(1.5)`;
+          this.style.opacity = '0.8';
+        });
+        
+        star.addEventListener('mouseleave', function() {
+          this.style.transform = '';
+          this.style.opacity = '';
+        });
+      });
+    });
+  </script>
   <script src="script.js"></script>
 </body>
 </html>
-
