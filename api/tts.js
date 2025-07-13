@@ -1,9 +1,11 @@
 export default async function handler(req, res) {
   const apiKey = process.env.ELEVENLABS_API_KEY;
 
-  const { text, voice_id } = req.body;
+  const { text, voiceId } = req.body; // ✅ Fix this line
 
-  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${voice_id}`, {
+  const selectedVoiceId = voiceId || "EXAVITQu4vr4xnSDxMaL"; // fallback to Rachel
+
+  const response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${selectedVoiceId}`, {
     method: 'POST',
     headers: {
       'Accept': 'audio/mpeg',

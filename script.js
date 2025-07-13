@@ -1,6 +1,7 @@
 async function generateSpeech() {
   const text = document.getElementById("text").value;
   const filename = document.getElementById("filename").value || "output.mp3";
+  const voiceId = document.getElementById("voiceId").value; // <-- Get selected voice
   const audioPlayer = document.getElementById("audioPlayer");
   const errorMsg = document.getElementById("errorMsg");
 
@@ -11,7 +12,7 @@ async function generateSpeech() {
     const response = await fetch("/api/tts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, filename })
+      body: JSON.stringify({ text, filename, voiceId }) // <-- Send it here
     });
 
     if (!response.ok) {

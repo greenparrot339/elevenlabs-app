@@ -13,6 +13,14 @@
     <textarea id="text" placeholder="Enter text to convert..." rows="5"></textarea>
     <input type="text" id="filename" placeholder="Filename (e.g., output.mp3)" />
 
+    <!-- 🎙️ Voice Selector -->
+    <select id="voiceId">
+      <option value="EXAVITQu4vr4xnSDxMaL">Rachel (Default)</option>
+      <option value="21m00Tcm4TlvDq8ikWAM">Domi</option>
+      <option value="yoZ06aMxZJJ28mfd3POQ">Antoni</option>
+      <!-- Add more voice options as needed -->
+    </select>
+
     <button onclick="generateSpeech()">Generate Audio</button>
 
     <audio id="audioPlayer" controls></audio>
@@ -23,3 +31,4 @@
   <script src="script.js"></script>
 </body>
 </html>
+
